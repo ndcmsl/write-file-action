@@ -10,6 +10,10 @@ inputs:
     description: "The contents of the file"
     required: true
 
+  contentType:
+    description: "Type of content to write: 'env' or 'ecosystem'"
+    required: true
+
   write-mode:
     description: "The mode of writing to use: `overwrite`, `append`, or `preserve`."
     required: false
@@ -19,7 +23,7 @@ outputs:
     description: "The returned size"
 
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/index.js"
 branding:
   icon: "package"

@@ -1,4 +1,4 @@
-import { debug, getInput, setFailed, setOutput } from '@actions/core';
+import { getInput, setFailed, setOutput } from '@actions/core';
 import { mkdirP } from "@actions/io";
 import { appendFile, exists, writeFile, stat } from "fs";
 import { dirname } from "path";
@@ -16,6 +16,7 @@ async function main() {
     const path = getInput("path", { required: true });
     const contents = getInput("contents", { required: true });
     const mode = (getInput("write-mode") || "append").toLocaleLowerCase();
+    const contentType = getInput("contentType", { required: true });
 
     // Ensure the correct mode is specified
     if (mode !== "append" && mode !== "overwrite" && mode !== "preserve") {
@@ -35,9 +36,15 @@ async function main() {
     await mkdirP(targetDir);
 
     if (mode === "overwrite") {
-      await writeFileAsync(path, contents);
+      let data;
+      if (contentType === 'env') {
+        data = contents.replaceAll(" ", "\n");
+      }
+      else if (contentType === 'ecosystem') {
+        data = contents.replaceAll(', ', ',\n');
+      }
+      await writeFileAsync(path, data);
     } else {
-      debug(`CONTENTS => ${contents}`);
       await appendFileAsync(path, contents);
     }
 
