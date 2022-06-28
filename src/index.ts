@@ -1,7 +1,7 @@
-import { getInput, setFailed, setOutput } from "@actions/core";
+import { debug, getInput, setFailed, setOutput } from '@actions/core';
 import { mkdirP } from "@actions/io";
 import { appendFile, exists, writeFile, stat } from "fs";
-import { dirname, join as joinPath, resolve as resolvePath } from "path";
+import { dirname } from "path";
 import { promisify } from "util";
 
 const appendFileAsync = promisify(appendFile);
@@ -37,12 +37,13 @@ async function main() {
     if (mode === "overwrite") {
       await writeFileAsync(path, contents);
     } else {
+      debug(`CONTENTS => ${contents}`);
       await appendFileAsync(path, contents);
     }
 
     const statResult = await statAsync(path);
     setOutput("size", `${statResult.size}`);
-  } catch (error) {
+  } catch (error: any) {
     setFailed(error.message);
   }
 }
