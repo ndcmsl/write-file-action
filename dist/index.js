@@ -978,11 +978,6 @@ const core_1 = __nccwpck_require__(186);
 const io_1 = __nccwpck_require__(436);
 const fs_1 = __nccwpck_require__(147);
 const path_1 = __nccwpck_require__(17);
-const util_1 = __nccwpck_require__(837);
-const appendFileAsync = (0, util_1.promisify)(fs_1.appendFile);
-const existsAsync = (0, util_1.promisify)(fs_1.exists);
-const writeFileAsync = (0, util_1.promisify)(fs_1.writeFile);
-const statAsync = (0, util_1.promisify)(fs_1.stat);
 main().catch((error) => (0, core_1.setFailed)(error.message));
 async function main() {
     try {
@@ -991,14 +986,8 @@ async function main() {
         const mode = ((0, core_1.getInput)("write-mode") || "append").toLocaleLowerCase();
         const contentType = (0, core_1.getInput)("contentType", { required: true });
         // Ensure the correct mode is specified
-        if (mode !== "append" && mode !== "overwrite" && mode !== "preserve") {
-            (0, core_1.setFailed)("Mode must be one of: overwrite, append, or preserve");
-            return;
-        }
-        // Preserve the file
-        if (mode === "preserve" && (await existsAsync(path))) {
-            const statResult = await statAsync(path);
-            (0, core_1.setOutput)("size", `${statResult.size}`);
+        if (mode !== "append" && mode !== "overwrite") {
+            (0, core_1.setFailed)("Mode must be one of: overwrite or append");
             return;
         }
         const targetDir = (0, path_1.dirname)(path);
@@ -1011,12 +1000,12 @@ async function main() {
             else if (contentType === 'ecosystem') {
                 data = contents.replaceAll(', ', ',\n');
             }
-            await writeFileAsync(path, contents);
+            (0, fs_1.writeFileSync)(path, data);
         }
         else {
-            await appendFileAsync(path, contents);
+            (0, fs_1.appendFileSync)(path, contents);
         }
-        const statResult = await statAsync(path);
+        const statResult = await (0, fs_1.statSync)(path);
         (0, core_1.setOutput)("size", `${statResult.size}`);
     }
     catch (error) {
